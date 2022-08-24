@@ -1,0 +1,9 @@
+__pycache__
+*test.py
+*website_files*
+downloads
+*.db
+error.*
+*.bak
+library of H.logs*
+venv

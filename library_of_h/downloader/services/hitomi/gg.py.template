@@ -1,0 +1,14 @@
+import re
+
+
+def m(g):
+    o = () # First
+    if g in ():
+        o = () # Second
+    return o
+
+def s(h):
+    m = re.search("(..)(.)$", h);
+    return str(int(m[2]+m[1], 16))
+
+b = ()

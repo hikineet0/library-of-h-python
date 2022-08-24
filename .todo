@@ -1,0 +1,262 @@
+(BEFORE RELEASE) (LIBRARY OF H) Change locaiton of config files and the likes to `~/.config/library-of-h` and its equivalent in Windows.
+(DOWNLOADER) Re-evaluate downloader, a little too complex.
+(DATABASE) Re-evaluate datbase manager, ^^^.
+(LIBRARY OF H) Backup reminder before every update.
+
+(DOWNLOADER) Have a signal in signal hub to emit after a call to `logger.error()`,
+connect it to `machine.stop()`.
+(DOWNLOADER) Switch download image format to webp or whatever, use python-magic.
+(LIBRARY OF H) "Changes will take affect starting next download session." message dialog.
+(LIBRARY OF H) Redirect Qt warning messages to logger.
+(LIBRARY OF H) Add blacklists and dowload-from file editing to GUI, possibly under tools menu in menubar.
+(DOWNLOADER) See if you can let Qt handle all the manual object deletions.
+(LOGS) Fix unable to scroll when new lines are being added.
+(VIEWER) Video viewer too.
+(VIEWER) Right click copy image to clipboard.
+(EXPLORER) Use 'no document/image found" icon for galleries in database but not directory.
+(EXPLORER) Better design for searching, results not found, and bad grammar widgets.
+(EXPLORER/VIEWER) Reload browser when error loading browser item, either in browser or in viewer.
+(LIBRARY OF H) Add check for new version.
+(DOWNLOADER) nhentai's 'media_id' corresponds to the gallery ID of that gallery in exhentai, and, because of that, it corresponds to the gallery ID of that gallery in hitomi.la. Can be used to filter duplicates downloaded from both (or more) sources.
+    (DOWNLOADER) Add option for user to choose if they want to filter or not.
+
+(DOWNLOADER) `Ctrl + Return` for download.
+(EXPLORER) Implement copy/move?
+(EXPLORER) Right click element for right click menu with copy, move, etc.
+(EXPLORER) Right click and "properties" shows the properties the directory would show in a file explorer.
+(VIEWER) Implement something for galleries that are in the database but not in disk.
+(LIBRARY OF H) Add menubar `tools` to delete all invalid databse records.
+(EXPLORER) Implement pagination with a list of numbers storing each page's offset gallery_database_id. Every `next` will work with the latest table ID, appending that to a list, every prev and line edit page change will try to index the list and revert to OFFSET if failed, every `move to trash` resets the list to `[]`.
+(DOWNLOADER) Download progress window laggy when resizing.
+(LIBRARY OF H) Add some kind of "datamining" to find most common queries for a user and optimize database accordingly?
+(LIBRARY OF H) Tools menu option to free database space,
+see: https://www.sqlite.org/pragma.html#pragma_auto_vacuum
+    (RESEARCH NEEDED) Maybe make it so that the space freeing is queued so that it's not done in the middle of a read/write operation.
+    - It is not possible to change the page_size after entering WAL mode, either on an empty database or by using VACUUM or by restoring from a backup using the backup API. You must be in a rollback journal mode to change the page size.
+(BROWSER) Implement directory properties.
+(VIEWER) It's time.
+(DATABASE) Remove read thread, reading is concurrent in sqlite.
+(DATABASE) Remove WAL and use/create two connections, one for reading one for writing, if it works that way.
+(DATABASE and EXTRACTOR) Cast to explicit python types to prevent wrong data being stored in the columns.
+(DATABASE) Maybe implement a connection timeout so the database connection times out if not used for x seconds, re-connect if timedout.
+    IMHO always best to close after you are done. What if your computer crashes? What if the network goes down? Closing the connection ensures everything is tidied up.
+(DATABASE) Implement something to stay consistent with the locking protocol? https://www.sqlite.org/howtocorrupt.html#_two_processes_using_different_locking_protocolsc
+(DATABASE) With each connection, check if `journal_mode` is `WAL` and `"PRAGMA locking_mode = EXCLUSIVE"` if not.
+(LIBRARY OF H) (MENU BAR) (TOOLS) extract .csv from gallery(galleries)
+(LIBRARY OF H) (MENU BAR) (TOOLS) add to database from .csv
+(LIBRARY OF H) Use resource file to store texts and images, see: https://youtu.be/JlZe2JwrJqM?&t=230
+Also, see https://github.com/Bionus/imgbrd-grabber/blob/master/src/languages/Japanese.ts
+(LIBRARY OF H) Use `__slots__` everywhere and check memory consumption.
+(VIEWER) Zoom from 25% - 500%
+(LIBRARY OF H) (MENU BAR) (TOOLS) Tool to collect metadata for library (give website choice to collect metadata from).
+---------------------- MAYBES ---------------------
+
+(MAYBE) (LIBRARY OF H) Add `OK` and `Cancel` buttons to settings dialog. If add `Apply` button, `Apply` applies the changes, `Cancel` reverts it and `OK` saves it permanently.
+(MAYBE) (LIBRARY OF H) Disable close button if changes made to settings.
+(MAYBE) (DOWNLOADER) Show stats for when the download started.
+(MAYBE) (DOWNLOADER) ~~check if a new gallery exists by comparing the date uploaded of the first gallery in the result with the latest gallery in database.~~
+   Won't work because latest gallery is always the first to be downloaded, i.e. partial item downloads will also be filtered as already downloaded.
+(MAYBE) (DOWNLOADER) Implement cross service check for already existing gallery(galleries) with that gallery ID that every gallery shares, add user settings for this option.
+(MAYBE) (EXPLORER) Add a tab feature (or something) to view current viewing gallery metadata.
+(MAYBE) (EXPLORER) Add option to delete (as opposed to move to trash).
+(MAYBE) (EXPLORER) Clicking on index creates overlay on index saying "Double click to read more" or something.
+(MAYBE) (VIEWER) animated thumbnail like youtube.
+ (MAYBE) (EXPLORER) Create detailed view, icon view, list view, compact view.
+ (MAYBE) (EXPLORER) Implement delete all results: `Ctrl + Shift + A`, "Select all results" in menu bar.
+ (MAYBE) (LIBRARY OF H) Ability for the user to favorite galleries (also for artists, tags, etc?).
+ (MAYBE) (LIBRARY) Include in tools menu options to create/remove the view and FTS5 table, will have to change how queries work as well.
+ (MAYBE) (DOCS) Storing `GeneralSearchView` and `GeneralSearchFTS5` causes ~200% increase in file size of the database file. If you care about the file size and not so much about runtime, de-select and from tools menu.
+ (MAYBE) (LBRARY OF H) backup tool? https://www.sqlite.org/backup.html
+
+------------------ DOCS -----------------
+
+(DOCS) For filtering use "key=comma separated values",
+    - comma separated values in the same key are `OR`d
+    - values under the same key but in different groups (artist:a artist:b) are `AND`ed
+    - add `-` infront of key to exclude its values:
+        - comma separated values in the same key are `OR`
+        - values under the same key but in different groups (artist:a artist:b) are `AND`
+    - list of usable operators:
+        - !~= (approximate not-match)
+        - ~= (approximate match)
+        - != (exact not-match)
+        - = (exact match)
+        - >
+        - <
+        - >=
+        - <=
+        - </>u{amount}[{period}] (uploaded less/more than {amount} [{period}] ago)
+        - </>d{amount}[{period}] (downloaded less/more than {amount} [{period}] ago)
+            Period can be: d, w, m, y
+            Period is optional, without period the {amount} is considered a UNIX timestamp.
+        - </>p{amount} (has pages less/more than {amount})
+        (to search for text that starts with any of the special characters, enclose them in quotes: `>p100` for pages more than `100`, `">p100"` to perform a general search for `">p100"`.
+    some examples:
+        artist=name1,name2, name 3
+        artist!=name3, name5
+        page<=10
+        page>5
+        artist=name1, name2, name3 artist=name10 artist!=name4 tag=name5 pages<100
+    
+(DOCS) No cross category `OR` filter for explorer because I don't see why anyone would want that.
+(DOCS) You can filter explorer with a custom user query such as:
+    `artist:"artist1, artist2" -artist:"artist3" language:"english"`
+    where comma separated values are `AND`ed and each separate key, value pair is `OR`ed.
+(DOCS) Add a note about filenames being changed if an invalid character is encountered.
+(DOCS) Add note about `All` appearing when a file is provided.
+(DOCS) Comma separated languages for nhentai.
+(DOCS) nhentai's 'media_id' corresponds to the gallery ID of that gallery in exhentai, and, because of that, to the gallery ID it corresponds to the gallery ID of that gallery in hitomi.la. Can be used to filter duplicates downloaded from both (or more) galleries.
+    (DOWNLOADER) Add option for user to choose if they want to filter or not.
+(DOCS) Filters only take lower case strings.
+(DOCS) For filtering anthology: anthology is a tag so add that to tags.blacklist.
+(DOCS) Only known to work with Windows and Linux systems.
+(DOCS) Add info with list of keywords for destination format.
+(DOCS) If `qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.` install (these are Debian Bullseye package names): `libxkbcommon-x11-0, libxcb-xkb1, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0`, or just `sudo apt install python3-<pyside6|pyqt6|pyside2|pyqt5>` whichever is available in your official repository.
+
+(DOCS) There's a decent level of garbage input handling with config.json, just don't be a retard.
+(DOCS) Do not use a directory separator for `filename_format`, use `class TableData(NamedTuple):
+    file_url: list[str]
+    filename: list[str]
+    ext: list[str]
+    formatted_filename: list[str]` for that.
+
+(DOCS) Shortcut keys:
+    Alt + O: Options menu.
+    Ctrl + f (focus on anywhere in main window): Sets focus on filter search.
+    f5 (focus on explorer): Refresh browser but stay on the same page (same as clicking the `Refresh` button).
+    Ctrl + r (focus on explorer): Refresh browser and goto first page.
+    Left/Right keys (focus on explorer): Previous or next page, respectively.
+    Escape (focus on line edits or comboboxes): Remove focus.
+    Escape (focus on anywhere else): Collapse/expand tab widget.
+    Page up (expanded tab widget): One tab behind (cyclic).
+    Page down (expanded tab widget): One tab front (cyclic).
+    Ctrl + E or D or L: Opens tab widget if not open and sets Explorer or Downloader or Logs tab, respectively, as current widget.
+(DOCS) LoH does not obsfucate your traffic. You are expected to handle your own traffic routing.
+(DOCS) LoH does not perform backups of any data, it is left to the user (and recommended) to do so. While creating backups, there are a few things to keep in mind, see: https://www.sqlite.org/howtocorrupt.html#_backup_or_restore_while_a_transaction_is_active
+Some key points on database corruption a user should be careful about (not just for this program, but when working with SQLite databases in general) are listed below, but it is recommended to read the whole page to get an understanding of the dos, the don'ts, and the whys.
+    - __"An SQLite database is highly resistant to corruption. If an application crash, or an operating-system crash, or even a power failure occurs in the middle of a transaction, the partially written transaction should be automatically rolled back the next time the database file is accessed. The recovery process is fully automatic and does not require any action on the part of the user or the application.
+
+    Though SQLite is resistant to database corruption, it is not immune. This document describes the various ways that an SQLite database might go corrupt."__
+    - General users (little to no programming knowledge)
+        - https://www.sqlite.org/howtocorrupt.html#_deleting_a_hot_journal
+        - https://www.sqlite.org/howtocorrupt.html#_mispairing_database_files_and_hot_journals_
+        - https://www.sqlite.org/howtocorrupt.html#_posix_advisory_locks_canceled_by_a_separate_thread_doing_close_
+            TL;DR: On POSIX systems, do not try to read an SQLite database file directly; use an SQLite library instead.
+        - https://www.sqlite.org/howtocorrupt.html#_unlinking_or_renaming_a_database_file_while_in_use
+        - https://www.sqlite.org/howtocorrupt.html#_disk_drives_that_do_not_honor_sync_requests
+             - (TL;DR databases can still be being written to even though your storage tells the OS to tell the database that all writing has completed, storage drives lie because "this makes the disk drives seem to operate faster".)
+        - https://www.sqlite.org/howtocorrupt.html#_disk_drive_and_flash_memory_failures
+            (TL;DR do not use flash memory.)
+        - https://www.sqlite.org/howtocorrupt.html#_linux_threads
+            (TL;DR "recent versions (3.7.0) of SQLite will subtly malfunction and may corrupt database files if used in multi-threaded application that run on older linux systems that make use of LinuxThreads".)
+        - https://www.sqlite.org/howtocorrupt.html#_filesystems_with_broken_or_missing_lock_implementations
+            (while this might not be a problem due to the single threaded nature of this program's database access, and Python in general (as of v3.9.2), it is still advised to keep in mind that an SQLite database could get corrupted under certain conditions in an NFS, specifically.)
+    - Others
+        - https://www.sqlite.org/howtocorrupt.html#_carrying_an_open_database_connection_across_a_fork_
+            TL;DR: Always keep it one connection per process (no inter-process connection passing).
+
+(DOCS) Somethings to keep in mind:
+    This program makes use of WAL journaling mode for its database, there are some drawbacks of this depending on the user's system, see the disadvantages in https://www.sqlite.org/wal.html , some key points are:
+        - WAL normally requires that the VFS support shared-memory primitives. (Exception: WAL without shared memory) The built-in unix and windows VFSes support this but third-party extension VFSes for custom operating systems might not.
+        - All processes using a database must be on the same host computer; WAL does not work over a network filesystem.
+
+
+(DOCS) Pre-existance of gallery is checked with unique gallery_id-source pairs, while this is a robust way to do it, there's always a miniscule possibility of the source re-using previous gallery IDs (though improbable).
+(DOCS) Datetime format should follow "Y-M-D".
+(DOCS) Database uses WAL journaling mode (for concurrent reads and writes). It has some disadvantages, one major one (as of 2022-08-20) might be:
+> All processes using a database must be on the same host computer; WAL does not work over a network filesystem.
+See (this)[https://www.sqlite.org/wal.html] for more info.
+(DOCS) Filtering is not case-sensitive.
+(DOCS) List of possible keywords for filter:
+    *(ALL OPERATORS ARE USEABLE WITH ANY KEYWORD)*
+    - `artist`:
+        Artist name (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `character`:
+        Character name (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `ddate`:
+        Download date (date-string/integer).
+        Meaningful operators are `=`, `!=`, `>`, `<`.
+    - `gallery`:
+        Gallery ID (integer).
+        Meaningful operators are `=`, `!=`.
+    - `group`:
+        Group name (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `jtitle`:
+        Japanese title (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `language`:
+        Language (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `pages`:
+        Number of pages in the gallery.
+        Meaningful operators are `=`, `!=`, `>`, `<`.
+    - `series`:
+        Series name (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `sex`:
+        Tag sex (string).
+        Not expected to be used but kept in for completeness sake.
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `tag`:
+        Tag name (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `title`:
+        English title (string).
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `type`:
+        Type/category of gallery. Examples: doujihshi, manga, anime, ...
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `source`:
+        Type/category of gallery.
+        Meaningful operators are `=`, `!=`, `~=`, `!~=`.
+    - `udate`:
+        Upload date (date-string/integer).
+        Meaningful operators are `=`, `!=`, `>`, `<`.
+    - `size`:
+        Size of the gallery on disk (integer).
+        Meaningful operators are `=`, `!=`, `>`, `<`.
+(DOCS) Storing `GeneralSearchView` and `GeneralSearchFTS5` causes ~200% increase in file size of the database file. Let me know if you care more about the size (as would be expected of a datahoarder) than query speed.
+
+
+----------------- NOTES ------------------
+
+(NOTE) nhentai does it all backend so there is no API for loading search results.
+(NOTE) (EXPLORER) To replicate stackoverflow's nested scroll area behaviour:
+    Store the current active editor in the delegate:
+        createEditor:
+            ...
+            self._editor = editor
+        destroyEditor:
+            ...
+            self._editor = None
+
+    Subclass QListView, override `mouseEvent` and `wheelEvent`:
+        mouseEvent(e):
+            self._index_timestamp = (self.indexAt(e.position().toPoint()), e.timestamp())
+        wheelEvent(e):
+            if self._index_timestamp and e.timestamp() - self._index_timestamp > 300:
+                qtc.QCoreApplication.sendEvent(self.itemDelegate(), e)
+            else:
+                super().wheelEvent(e)
+                self._index_timestamp = (self.indexAt(e.position().toPoint()), e.timestamp())
+
+    Handle the passed event in `BrowserItemDelegate`:
+        event(e):
+            if self._editor:
+                qtc.QCoreApplication.sendEvent(self._editor, e)
+    Then think for yourself.
+--------------------------------------------------------------------------------
+ERRORS:
+    (UNSOLVED) There was some random hold up and I have no idea why.
+        Might be from gg.js changing.
+    (UNSOLVED) _write_to_disk AttributeError: 'eType' object has no attribute 'write'
+        ~~Try creating the files from the errors.~~ *Didn't work, could create normally. Also, stopping and re-downloading works so not the problem.*
+        Looks like it's consistently happening only with galleries such as 1746158 and 1382538, that have images "stacked" on top of each other.
+    (SOLVED*) check file existance remote file ` == int(` error: cant convert b'' to int
+        Possibly due to cache, might have been solved with "cache-control: no-cache" header.
+
+(FUTURE SUGGESTIONS) (DOWNLOADER) Find a way to pause EVERYTHING (i.e. extraction, and download).
+    Possibly possible now that state machine is being used.
